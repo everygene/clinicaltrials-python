@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "clinicaltrials"
-version = "1.0.0"
+version = "2.0.3"
 description = "ClinicalTrials.gov REST API"
 authors = ["OpenAPI Generator Community <team@openapitools.org>"]
 license = "NoLicense"
