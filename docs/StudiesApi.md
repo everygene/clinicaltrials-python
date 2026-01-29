@@ -16,7 +16,16 @@ Method | HTTP request | Description
 
 Enums
 
-Returns enumeration types and their values.  Every item of the returning array represents enum type and contains the following properties: * `type` - enum type name * `pieces` - array of names of all data pieces having the enum type * `values` - all available values of the enum; every item contains the following properties:   * `value` - data value   * `legacyValue` - data value in legacy API   * `exceptions` - map from data piece name to legacy value when different from `legacyValue`     (some data pieces had special enum values in legacy API)
+Returns enumeration types and their values.
+
+Every item of the returning array represents enum type and contains the following properties:
+* `type` - enum type name
+* `pieces` - array of names of all data pieces having the enum type
+* `values` - all available values of the enum; every item contains the following properties:
+  * `value` - data value
+  * `legacyValue` - data value in legacy API
+  * `exceptions` - map from data piece name to legacy value when different from `legacyValue`
+    (some data pieces had special enum values in legacy API)
 
 ### Example
 
@@ -157,7 +166,24 @@ No authorization required
 
 Studies
 
-Returns data of studies matching query and filter parameters. The studies are returned page by page. If response contains `nextPageToken`, use its value in `pageToken` to get next page. The last page will not contain `nextPageToken`. A page may have empty `studies` array. Request for each subsequent page **must** have the same parameters as for the first page, except `countTotal`, `pageSize`, and `pageToken` parameters.  If neither queries nor filters are set, all studies will be returned. If any query parameter contains only NCT IDs (comma- and/or space-separated), filters are ignored.  `query.*` parameters are in [Essie expression syntax](/find-studies/constructing-complex-search-queries). Those parameters affect ranking of studies, if sorted by relevance. See `sort` parameter for details.  `filter.*` and `postFilter.*` parameters have same effect as there is no aggregation calculation.  Both are available just to simplify applying parameters from search request. Both do not affect ranking of studies.  Note: When trying JSON format in your browser, do not set too large `pageSize` parameter, if `fields` is unlimited. That may return too much data for the browser to parse and render.
+Returns data of studies matching query and filter parameters. The studies are returned page by page.
+If response contains `nextPageToken`, use its value in `pageToken` to get next page.
+The last page will not contain `nextPageToken`. A page may have empty `studies` array.
+Request for each subsequent page **must** have the same parameters as for the first page, except
+`countTotal`, `pageSize`, and `pageToken` parameters.
+
+If neither queries nor filters are set, all studies will be returned.
+If any query parameter contains only NCT IDs (comma- and/or space-separated), filters are ignored.
+
+`query.*` parameters are in [Essie expression syntax](/find-studies/constructing-complex-search-queries).
+Those parameters affect ranking of studies, if sorted by relevance. See `sort` parameter for details.
+
+`filter.*` and `postFilter.*` parameters have same effect as there is no aggregation calculation. 
+Both are available just to simplify applying parameters from search request.
+Both do not affect ranking of studies.
+
+Note: When trying JSON format in your browser, do not set too large `pageSize` parameter, if `fields` is
+unlimited. That may return too much data for the browser to parse and render.
 
 ### Example
 

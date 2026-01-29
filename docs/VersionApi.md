@@ -12,7 +12,10 @@ Method | HTTP request | Description
 
 Version
 
-API and data versions.  API version follows [Semantic Versioning 2.0.0 Schema](https://semver.org/spec/v2.0.0.html). Data version is UTC timestamp in `yyyy-MM-dd'T'HH:mm:ss` format.
+API and data versions.
+
+API version follows [Semantic Versioning 2.0.0 Schema](https://semver.org/spec/v2.0.0.html).
+Data version is UTC timestamp in `yyyy-MM-dd'T'HH:mm:ss` format.
 
 ### Example
 

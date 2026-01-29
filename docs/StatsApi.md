@@ -87,7 +87,11 @@ No authorization required
 
 List Field Sizes
 
-Sizes of list/array fields.  To search studies by a list field size, use `AREA[FieldName:size]` search operator. For example, [AREA\\[Phase:size\\] 2](https://clinicaltrials.gov/search?term=AREA%5BPhase:size%5D%202) query finds studies with 2 phases.
+Sizes of list/array fields.
+
+To search studies by a list field size, use `AREA[FieldName:size]` search operator.
+For example, [AREA\[Phase:size\] 2](https://clinicaltrials.gov/search?term=AREA%5BPhase:size%5D%202)
+query finds studies with 2 phases.
 
 ### Example
 
