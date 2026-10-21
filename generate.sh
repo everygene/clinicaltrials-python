@@ -15,9 +15,9 @@ fi
 
 echo "Generating clinicaltrials $API_VERSION with $GENERATOR_IMAGE"
 
-# disallowAdditionalPropertiesIfNotPresent=false: follow the OpenAPI/JSON Schema
-# default (objects are open), so unknown fields from the API are kept in
-# additional_properties instead of being silently dropped.
+# Keep the generator's default disallowAdditionalPropertiesIfNotPresent=true:
+# with it off, every model gains an additional_properties field, and everygene
+# builds its Firestore Study (extra="forbid") from study.model_dump().
 docker run --rm \
     -v "$(pwd):/local" \
     "$GENERATOR_IMAGE" \
@@ -25,4 +25,4 @@ docker run --rm \
     --package-name clinicaltrials \
     --git-user-id everygene \
     --git-repo-id clinicaltrials-python \
-    --additional-properties="packageVersion=${API_VERSION},packageUrl=https://github.com/everygene/clinicaltrials-python,buildSystem=hatchling,disallowAdditionalPropertiesIfNotPresent=false"
+    --additional-properties="packageVersion=${API_VERSION},packageUrl=https://github.com/everygene/clinicaltrials-python,buildSystem=hatchling"

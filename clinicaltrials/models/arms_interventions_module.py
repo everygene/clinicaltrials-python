@@ -31,7 +31,6 @@ class ArmsInterventionsModule(BaseModel):
     """ # noqa: E501
     arm_groups: Optional[List[ArmGroup]] = Field(default=None, alias="armGroups")
     interventions: Optional[List[Intervention]] = None
-    additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["armGroups", "interventions"]
 
     model_config = ConfigDict(
@@ -64,10 +63,8 @@ class ArmsInterventionsModule(BaseModel):
         * `None` is only added to the output dict for nullable fields that
           were set at model initialization. Other fields with value `None`
           are ignored.
-        * Fields in `self.additional_properties` are added to the output dict.
         """
         excluded_fields: Set[str] = set([
-            "additional_properties",
         ])
 
         _dict = self.model_dump(
@@ -87,11 +84,6 @@ class ArmsInterventionsModule(BaseModel):
             for _item_interventions in self.interventions:
                 _items.append(_item_interventions.to_dict() if _item_interventions is not None else None)
             _dict['interventions'] = _items
-        # puts key-value pairs in additional_properties in the top level
-        if self.additional_properties is not None:
-            for _key, _value in self.additional_properties.items():
-                _dict[_key] = _value
-
         return _dict
 
     @classmethod
@@ -107,11 +99,6 @@ class ArmsInterventionsModule(BaseModel):
             "armGroups": [ArmGroup.from_dict(_item) for _item in obj["armGroups"]] if obj.get("armGroups") is not None else None,
             "interventions": [Intervention.from_dict(_item) for _item in obj["interventions"]] if obj.get("interventions") is not None else None
         })
-        # store additional fields in additional_properties
-        for _key in obj.keys():
-            if _key not in cls.__properties:
-                _obj.additional_properties[_key] = obj.get(_key)
-
         return _obj
 
 

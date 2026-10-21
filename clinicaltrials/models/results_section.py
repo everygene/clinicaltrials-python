@@ -37,7 +37,6 @@ class ResultsSection(BaseModel):
     outcome_measures_module: Optional[OutcomeMeasuresModule] = Field(default=None, alias="outcomeMeasuresModule")
     adverse_events_module: Optional[AdverseEventsModule] = Field(default=None, alias="adverseEventsModule")
     more_info_module: Optional[MoreInfoModule] = Field(default=None, alias="moreInfoModule")
-    additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["participantFlowModule", "baselineCharacteristicsModule", "outcomeMeasuresModule", "adverseEventsModule", "moreInfoModule"]
 
     model_config = ConfigDict(
@@ -70,10 +69,8 @@ class ResultsSection(BaseModel):
         * `None` is only added to the output dict for nullable fields that
           were set at model initialization. Other fields with value `None`
           are ignored.
-        * Fields in `self.additional_properties` are added to the output dict.
         """
         excluded_fields: Set[str] = set([
-            "additional_properties",
         ])
 
         _dict = self.model_dump(
@@ -96,11 +93,6 @@ class ResultsSection(BaseModel):
         # override the default output from pydantic by calling `to_dict()` of more_info_module
         if self.more_info_module:
             _dict['moreInfoModule'] = self.more_info_module.to_dict()
-        # puts key-value pairs in additional_properties in the top level
-        if self.additional_properties is not None:
-            for _key, _value in self.additional_properties.items():
-                _dict[_key] = _value
-
         return _dict
 
     @classmethod
@@ -119,11 +111,6 @@ class ResultsSection(BaseModel):
             "adverseEventsModule": AdverseEventsModule.from_dict(obj["adverseEventsModule"]) if obj.get("adverseEventsModule") is not None else None,
             "moreInfoModule": MoreInfoModule.from_dict(obj["moreInfoModule"]) if obj.get("moreInfoModule") is not None else None
         })
-        # store additional fields in additional_properties
-        for _key in obj.keys():
-            if _key not in cls.__properties:
-                _obj.additional_properties[_key] = obj.get(_key)
-
         return _obj
 
 

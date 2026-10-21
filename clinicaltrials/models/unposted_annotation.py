@@ -30,7 +30,6 @@ class UnpostedAnnotation(BaseModel):
     """ # noqa: E501
     unposted_responsible_party: Optional[StrictStr] = Field(default=None, alias="unpostedResponsibleParty")
     unposted_events: Optional[List[UnpostedEvent]] = Field(default=None, alias="unpostedEvents")
-    additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["unpostedResponsibleParty", "unpostedEvents"]
 
     model_config = ConfigDict(
@@ -63,10 +62,8 @@ class UnpostedAnnotation(BaseModel):
         * `None` is only added to the output dict for nullable fields that
           were set at model initialization. Other fields with value `None`
           are ignored.
-        * Fields in `self.additional_properties` are added to the output dict.
         """
         excluded_fields: Set[str] = set([
-            "additional_properties",
         ])
 
         _dict = self.model_dump(
@@ -80,11 +77,6 @@ class UnpostedAnnotation(BaseModel):
             for _item_unposted_events in self.unposted_events:
                 _items.append(_item_unposted_events.to_dict() if _item_unposted_events is not None else None)
             _dict['unpostedEvents'] = _items
-        # puts key-value pairs in additional_properties in the top level
-        if self.additional_properties is not None:
-            for _key, _value in self.additional_properties.items():
-                _dict[_key] = _value
-
         return _dict
 
     @classmethod
@@ -100,11 +92,6 @@ class UnpostedAnnotation(BaseModel):
             "unpostedResponsibleParty": obj.get("unpostedResponsibleParty"),
             "unpostedEvents": [UnpostedEvent.from_dict(_item) for _item in obj["unpostedEvents"]] if obj.get("unpostedEvents") is not None else None
         })
-        # store additional fields in additional_properties
-        for _key in obj.keys():
-            if _key not in cls.__properties:
-                _obj.additional_properties[_key] = obj.get(_key)
-
         return _obj
 
 

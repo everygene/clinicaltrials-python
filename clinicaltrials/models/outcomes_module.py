@@ -31,7 +31,6 @@ class OutcomesModule(BaseModel):
     primary_outcomes: Optional[List[Outcome]] = Field(default=None, alias="primaryOutcomes")
     secondary_outcomes: Optional[List[Outcome]] = Field(default=None, alias="secondaryOutcomes")
     other_outcomes: Optional[List[Outcome]] = Field(default=None, alias="otherOutcomes")
-    additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["primaryOutcomes", "secondaryOutcomes", "otherOutcomes"]
 
     model_config = ConfigDict(
@@ -64,10 +63,8 @@ class OutcomesModule(BaseModel):
         * `None` is only added to the output dict for nullable fields that
           were set at model initialization. Other fields with value `None`
           are ignored.
-        * Fields in `self.additional_properties` are added to the output dict.
         """
         excluded_fields: Set[str] = set([
-            "additional_properties",
         ])
 
         _dict = self.model_dump(
@@ -93,11 +90,6 @@ class OutcomesModule(BaseModel):
             for _item_other_outcomes in self.other_outcomes:
                 _items.append(_item_other_outcomes.to_dict() if _item_other_outcomes is not None else None)
             _dict['otherOutcomes'] = _items
-        # puts key-value pairs in additional_properties in the top level
-        if self.additional_properties is not None:
-            for _key, _value in self.additional_properties.items():
-                _dict[_key] = _value
-
         return _dict
 
     @classmethod
@@ -114,11 +106,6 @@ class OutcomesModule(BaseModel):
             "secondaryOutcomes": [Outcome.from_dict(_item) for _item in obj["secondaryOutcomes"]] if obj.get("secondaryOutcomes") is not None else None,
             "otherOutcomes": [Outcome.from_dict(_item) for _item in obj["otherOutcomes"]] if obj.get("otherOutcomes") is not None else None
         })
-        # store additional fields in additional_properties
-        for _key in obj.keys():
-            if _key not in cls.__properties:
-                _obj.additional_properties[_key] = obj.get(_key)
-
         return _obj
 
 

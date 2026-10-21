@@ -33,7 +33,6 @@ class Contact(BaseModel):
     phone: Optional[StrictStr] = None
     phone_ext: Optional[StrictStr] = Field(default=None, alias="phoneExt")
     email: Optional[StrictStr] = None
-    additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["name", "role", "phone", "phoneExt", "email"]
 
     model_config = ConfigDict(
@@ -66,10 +65,8 @@ class Contact(BaseModel):
         * `None` is only added to the output dict for nullable fields that
           were set at model initialization. Other fields with value `None`
           are ignored.
-        * Fields in `self.additional_properties` are added to the output dict.
         """
         excluded_fields: Set[str] = set([
-            "additional_properties",
         ])
 
         _dict = self.model_dump(
@@ -77,11 +74,6 @@ class Contact(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # puts key-value pairs in additional_properties in the top level
-        if self.additional_properties is not None:
-            for _key, _value in self.additional_properties.items():
-                _dict[_key] = _value
-
         return _dict
 
     @classmethod
@@ -100,11 +92,6 @@ class Contact(BaseModel):
             "phoneExt": obj.get("phoneExt"),
             "email": obj.get("email")
         })
-        # store additional fields in additional_properties
-        for _key in obj.keys():
-            if _key not in cls.__properties:
-                _obj.additional_properties[_key] = obj.get(_key)
-
         return _obj
 
 

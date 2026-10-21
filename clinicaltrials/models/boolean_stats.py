@@ -18,7 +18,7 @@ import re  # noqa: F401
 import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictInt, StrictStr
-from typing import Any, ClassVar, Dict
+from typing import Any, ClassVar, Dict, List
 from clinicaltrials.models.field_stats_type import FieldStatsType
 from typing import Optional, Set
 from typing_extensions import Self

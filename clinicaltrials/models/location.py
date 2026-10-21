@@ -39,7 +39,6 @@ class Location(BaseModel):
     contacts: Optional[List[Contact]] = None
     country_code: Optional[StrictStr] = Field(default=None, alias="countryCode")
     geo_point: Optional[GeoPoint] = Field(default=None, alias="geoPoint")
-    additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["facility", "status", "city", "state", "zip", "country", "contacts", "countryCode", "geoPoint"]
 
     model_config = ConfigDict(
@@ -72,10 +71,8 @@ class Location(BaseModel):
         * `None` is only added to the output dict for nullable fields that
           were set at model initialization. Other fields with value `None`
           are ignored.
-        * Fields in `self.additional_properties` are added to the output dict.
         """
         excluded_fields: Set[str] = set([
-            "additional_properties",
         ])
 
         _dict = self.model_dump(
@@ -92,11 +89,6 @@ class Location(BaseModel):
         # override the default output from pydantic by calling `to_dict()` of geo_point
         if self.geo_point:
             _dict['geoPoint'] = self.geo_point.to_dict()
-        # puts key-value pairs in additional_properties in the top level
-        if self.additional_properties is not None:
-            for _key, _value in self.additional_properties.items():
-                _dict[_key] = _value
-
         return _dict
 
     @classmethod
@@ -119,11 +111,6 @@ class Location(BaseModel):
             "countryCode": obj.get("countryCode"),
             "geoPoint": GeoPoint.from_dict(obj["geoPoint"]) if obj.get("geoPoint") is not None else None
         })
-        # store additional fields in additional_properties
-        for _key in obj.keys():
-            if _key not in cls.__properties:
-                _obj.additional_properties[_key] = obj.get(_key)
-
         return _obj
 
 

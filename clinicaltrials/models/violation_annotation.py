@@ -29,7 +29,6 @@ class ViolationAnnotation(BaseModel):
     ViolationAnnotation
     """ # noqa: E501
     violation_events: Optional[List[ViolationEvent]] = Field(default=None, alias="violationEvents")
-    additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["violationEvents"]
 
     model_config = ConfigDict(
@@ -62,10 +61,8 @@ class ViolationAnnotation(BaseModel):
         * `None` is only added to the output dict for nullable fields that
           were set at model initialization. Other fields with value `None`
           are ignored.
-        * Fields in `self.additional_properties` are added to the output dict.
         """
         excluded_fields: Set[str] = set([
-            "additional_properties",
         ])
 
         _dict = self.model_dump(
@@ -79,11 +76,6 @@ class ViolationAnnotation(BaseModel):
             for _item_violation_events in self.violation_events:
                 _items.append(_item_violation_events.to_dict() if _item_violation_events is not None else None)
             _dict['violationEvents'] = _items
-        # puts key-value pairs in additional_properties in the top level
-        if self.additional_properties is not None:
-            for _key, _value in self.additional_properties.items():
-                _dict[_key] = _value
-
         return _dict
 
     @classmethod
@@ -98,11 +90,6 @@ class ViolationAnnotation(BaseModel):
         _obj = cls.model_validate({
             "violationEvents": [ViolationEvent.from_dict(_item) for _item in obj["violationEvents"]] if obj.get("violationEvents") is not None else None
         })
-        # store additional fields in additional_properties
-        for _key in obj.keys():
-            if _key not in cls.__properties:
-                _obj.additional_properties[_key] = obj.get(_key)
-
         return _obj
 
 

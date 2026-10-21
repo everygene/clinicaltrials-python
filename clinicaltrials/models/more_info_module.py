@@ -33,7 +33,6 @@ class MoreInfoModule(BaseModel):
     limitations_and_caveats: Optional[LimitationsAndCaveats] = Field(default=None, alias="limitationsAndCaveats")
     certain_agreement: Optional[CertainAgreement] = Field(default=None, alias="certainAgreement")
     point_of_contact: Optional[PointOfContact] = Field(default=None, alias="pointOfContact")
-    additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["limitationsAndCaveats", "certainAgreement", "pointOfContact"]
 
     model_config = ConfigDict(
@@ -66,10 +65,8 @@ class MoreInfoModule(BaseModel):
         * `None` is only added to the output dict for nullable fields that
           were set at model initialization. Other fields with value `None`
           are ignored.
-        * Fields in `self.additional_properties` are added to the output dict.
         """
         excluded_fields: Set[str] = set([
-            "additional_properties",
         ])
 
         _dict = self.model_dump(
@@ -86,11 +83,6 @@ class MoreInfoModule(BaseModel):
         # override the default output from pydantic by calling `to_dict()` of point_of_contact
         if self.point_of_contact:
             _dict['pointOfContact'] = self.point_of_contact.to_dict()
-        # puts key-value pairs in additional_properties in the top level
-        if self.additional_properties is not None:
-            for _key, _value in self.additional_properties.items():
-                _dict[_key] = _value
-
         return _dict
 
     @classmethod
@@ -107,11 +99,6 @@ class MoreInfoModule(BaseModel):
             "certainAgreement": CertainAgreement.from_dict(obj["certainAgreement"]) if obj.get("certainAgreement") is not None else None,
             "pointOfContact": PointOfContact.from_dict(obj["pointOfContact"]) if obj.get("pointOfContact") is not None else None
         })
-        # store additional fields in additional_properties
-        for _key in obj.keys():
-            if _key not in cls.__properties:
-                _obj.additional_properties[_key] = obj.get(_key)
-
         return _obj
 
 

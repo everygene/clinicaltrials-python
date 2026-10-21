@@ -31,7 +31,6 @@ class EventStats(BaseModel):
     num_events: Optional[StrictInt] = Field(default=None, alias="numEvents")
     num_affected: Optional[StrictInt] = Field(default=None, alias="numAffected")
     num_at_risk: Optional[StrictInt] = Field(default=None, alias="numAtRisk")
-    additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["groupId", "numEvents", "numAffected", "numAtRisk"]
 
     model_config = ConfigDict(
@@ -64,10 +63,8 @@ class EventStats(BaseModel):
         * `None` is only added to the output dict for nullable fields that
           were set at model initialization. Other fields with value `None`
           are ignored.
-        * Fields in `self.additional_properties` are added to the output dict.
         """
         excluded_fields: Set[str] = set([
-            "additional_properties",
         ])
 
         _dict = self.model_dump(
@@ -75,11 +72,6 @@ class EventStats(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # puts key-value pairs in additional_properties in the top level
-        if self.additional_properties is not None:
-            for _key, _value in self.additional_properties.items():
-                _dict[_key] = _value
-
         return _dict
 
     @classmethod
@@ -97,11 +89,6 @@ class EventStats(BaseModel):
             "numAffected": obj.get("numAffected"),
             "numAtRisk": obj.get("numAtRisk")
         })
-        # store additional fields in additional_properties
-        for _key in obj.keys():
-            if _key not in cls.__properties:
-                _obj.additional_properties[_key] = obj.get(_key)
-
         return _obj
 
 

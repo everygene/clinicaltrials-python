@@ -31,7 +31,6 @@ class AnnotationModule(BaseModel):
     """ # noqa: E501
     unposted_annotation: Optional[UnpostedAnnotation] = Field(default=None, alias="unpostedAnnotation")
     violation_annotation: Optional[ViolationAnnotation] = Field(default=None, alias="violationAnnotation")
-    additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["unpostedAnnotation", "violationAnnotation"]
 
     model_config = ConfigDict(
@@ -64,10 +63,8 @@ class AnnotationModule(BaseModel):
         * `None` is only added to the output dict for nullable fields that
           were set at model initialization. Other fields with value `None`
           are ignored.
-        * Fields in `self.additional_properties` are added to the output dict.
         """
         excluded_fields: Set[str] = set([
-            "additional_properties",
         ])
 
         _dict = self.model_dump(
@@ -81,11 +78,6 @@ class AnnotationModule(BaseModel):
         # override the default output from pydantic by calling `to_dict()` of violation_annotation
         if self.violation_annotation:
             _dict['violationAnnotation'] = self.violation_annotation.to_dict()
-        # puts key-value pairs in additional_properties in the top level
-        if self.additional_properties is not None:
-            for _key, _value in self.additional_properties.items():
-                _dict[_key] = _value
-
         return _dict
 
     @classmethod
@@ -101,11 +93,6 @@ class AnnotationModule(BaseModel):
             "unpostedAnnotation": UnpostedAnnotation.from_dict(obj["unpostedAnnotation"]) if obj.get("unpostedAnnotation") is not None else None,
             "violationAnnotation": ViolationAnnotation.from_dict(obj["violationAnnotation"]) if obj.get("violationAnnotation") is not None else None
         })
-        # store additional fields in additional_properties
-        for _key in obj.keys():
-            if _key not in cls.__properties:
-                _obj.additional_properties[_key] = obj.get(_key)
-
         return _obj
 
 

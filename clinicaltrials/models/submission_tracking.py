@@ -33,7 +33,6 @@ class SubmissionTracking(BaseModel):
     estimated_results_first_submit_date: Optional[date] = Field(default=None, alias="estimatedResultsFirstSubmitDate")
     first_mcp_info: Optional[FirstMcpInfo] = Field(default=None, alias="firstMcpInfo")
     submission_infos: Optional[List[SubmissionInfo]] = Field(default=None, alias="submissionInfos")
-    additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["estimatedResultsFirstSubmitDate", "firstMcpInfo", "submissionInfos"]
 
     model_config = ConfigDict(
@@ -66,10 +65,8 @@ class SubmissionTracking(BaseModel):
         * `None` is only added to the output dict for nullable fields that
           were set at model initialization. Other fields with value `None`
           are ignored.
-        * Fields in `self.additional_properties` are added to the output dict.
         """
         excluded_fields: Set[str] = set([
-            "additional_properties",
         ])
 
         _dict = self.model_dump(
@@ -86,11 +83,6 @@ class SubmissionTracking(BaseModel):
             for _item_submission_infos in self.submission_infos:
                 _items.append(_item_submission_infos.to_dict() if _item_submission_infos is not None else None)
             _dict['submissionInfos'] = _items
-        # puts key-value pairs in additional_properties in the top level
-        if self.additional_properties is not None:
-            for _key, _value in self.additional_properties.items():
-                _dict[_key] = _value
-
         return _dict
 
     @classmethod
@@ -107,11 +99,6 @@ class SubmissionTracking(BaseModel):
             "firstMcpInfo": FirstMcpInfo.from_dict(obj["firstMcpInfo"]) if obj.get("firstMcpInfo") is not None else None,
             "submissionInfos": [SubmissionInfo.from_dict(_item) for _item in obj["submissionInfos"]] if obj.get("submissionInfos") is not None else None
         })
-        # store additional fields in additional_properties
-        for _key in obj.keys():
-            if _key not in cls.__properties:
-                _obj.additional_properties[_key] = obj.get(_key)
-
         return _obj
 
 

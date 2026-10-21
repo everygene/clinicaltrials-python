@@ -41,7 +41,6 @@ class BaselineMeasure(BaseModel):
     denom_units_selected: Optional[StrictStr] = Field(default=None, alias="denomUnitsSelected")
     denoms: Optional[List[Denom]] = None
     classes: Optional[List[MeasureClass]] = None
-    additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["title", "description", "populationDescription", "paramType", "dispersionType", "unitOfMeasure", "calculatePct", "denomUnitsSelected", "denoms", "classes"]
 
     model_config = ConfigDict(
@@ -74,10 +73,8 @@ class BaselineMeasure(BaseModel):
         * `None` is only added to the output dict for nullable fields that
           were set at model initialization. Other fields with value `None`
           are ignored.
-        * Fields in `self.additional_properties` are added to the output dict.
         """
         excluded_fields: Set[str] = set([
-            "additional_properties",
         ])
 
         _dict = self.model_dump(
@@ -97,11 +94,6 @@ class BaselineMeasure(BaseModel):
             for _item_classes in self.classes:
                 _items.append(_item_classes.to_dict() if _item_classes is not None else None)
             _dict['classes'] = _items
-        # puts key-value pairs in additional_properties in the top level
-        if self.additional_properties is not None:
-            for _key, _value in self.additional_properties.items():
-                _dict[_key] = _value
-
         return _dict
 
     @classmethod
@@ -125,11 +117,6 @@ class BaselineMeasure(BaseModel):
             "denoms": [Denom.from_dict(_item) for _item in obj["denoms"]] if obj.get("denoms") is not None else None,
             "classes": [MeasureClass.from_dict(_item) for _item in obj["classes"]] if obj.get("classes") is not None else None
         })
-        # store additional fields in additional_properties
-        for _key in obj.keys():
-            if _key not in cls.__properties:
-                _obj.additional_properties[_key] = obj.get(_key)
-
         return _obj
 
 

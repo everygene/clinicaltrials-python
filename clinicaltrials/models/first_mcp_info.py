@@ -29,7 +29,6 @@ class FirstMcpInfo(BaseModel):
     FirstMcpInfo
     """ # noqa: E501
     post_date_struct: Optional[DateStruct] = Field(default=None, alias="postDateStruct")
-    additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["postDateStruct"]
 
     model_config = ConfigDict(
@@ -62,10 +61,8 @@ class FirstMcpInfo(BaseModel):
         * `None` is only added to the output dict for nullable fields that
           were set at model initialization. Other fields with value `None`
           are ignored.
-        * Fields in `self.additional_properties` are added to the output dict.
         """
         excluded_fields: Set[str] = set([
-            "additional_properties",
         ])
 
         _dict = self.model_dump(
@@ -76,11 +73,6 @@ class FirstMcpInfo(BaseModel):
         # override the default output from pydantic by calling `to_dict()` of post_date_struct
         if self.post_date_struct:
             _dict['postDateStruct'] = self.post_date_struct.to_dict()
-        # puts key-value pairs in additional_properties in the top level
-        if self.additional_properties is not None:
-            for _key, _value in self.additional_properties.items():
-                _dict[_key] = _value
-
         return _dict
 
     @classmethod
@@ -95,11 +87,6 @@ class FirstMcpInfo(BaseModel):
         _obj = cls.model_validate({
             "postDateStruct": DateStruct.from_dict(obj["postDateStruct"]) if obj.get("postDateStruct") is not None else None
         })
-        # store additional fields in additional_properties
-        for _key in obj.keys():
-            if _key not in cls.__properties:
-                _obj.additional_properties[_key] = obj.get(_key)
-
         return _obj
 
 

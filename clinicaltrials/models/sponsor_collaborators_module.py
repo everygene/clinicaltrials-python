@@ -32,7 +32,6 @@ class SponsorCollaboratorsModule(BaseModel):
     responsible_party: Optional[ResponsibleParty] = Field(default=None, alias="responsibleParty")
     lead_sponsor: Optional[Sponsor] = Field(default=None, alias="leadSponsor")
     collaborators: Optional[List[Sponsor]] = None
-    additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["responsibleParty", "leadSponsor", "collaborators"]
 
     model_config = ConfigDict(
@@ -65,10 +64,8 @@ class SponsorCollaboratorsModule(BaseModel):
         * `None` is only added to the output dict for nullable fields that
           were set at model initialization. Other fields with value `None`
           are ignored.
-        * Fields in `self.additional_properties` are added to the output dict.
         """
         excluded_fields: Set[str] = set([
-            "additional_properties",
         ])
 
         _dict = self.model_dump(
@@ -88,11 +85,6 @@ class SponsorCollaboratorsModule(BaseModel):
             for _item_collaborators in self.collaborators:
                 _items.append(_item_collaborators.to_dict() if _item_collaborators is not None else None)
             _dict['collaborators'] = _items
-        # puts key-value pairs in additional_properties in the top level
-        if self.additional_properties is not None:
-            for _key, _value in self.additional_properties.items():
-                _dict[_key] = _value
-
         return _dict
 
     @classmethod
@@ -109,11 +101,6 @@ class SponsorCollaboratorsModule(BaseModel):
             "leadSponsor": Sponsor.from_dict(obj["leadSponsor"]) if obj.get("leadSponsor") is not None else None,
             "collaborators": [Sponsor.from_dict(_item) for _item in obj["collaborators"]] if obj.get("collaborators") is not None else None
         })
-        # store additional fields in additional_properties
-        for _key in obj.keys():
-            if _key not in cls.__properties:
-                _obj.additional_properties[_key] = obj.get(_key)
-
         return _obj
 
 

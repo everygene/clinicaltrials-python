@@ -53,7 +53,6 @@ class StatusModule(BaseModel):
     disp_first_post_date_struct: Optional[DateStruct] = Field(default=None, alias="dispFirstPostDateStruct")
     last_update_submit_date: Optional[date] = Field(default=None, alias="lastUpdateSubmitDate")
     last_update_post_date_struct: Optional[DateStruct] = Field(default=None, alias="lastUpdatePostDateStruct")
-    additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["statusVerifiedDate", "overallStatus", "lastKnownStatus", "delayedPosting", "whyStopped", "expandedAccessInfo", "startDateStruct", "primaryCompletionDateStruct", "completionDateStruct", "studyFirstSubmitDate", "studyFirstSubmitQcDate", "studyFirstPostDateStruct", "resultsWaived", "resultsFirstSubmitDate", "resultsFirstSubmitQcDate", "resultsFirstPostDateStruct", "dispFirstSubmitDate", "dispFirstSubmitQcDate", "dispFirstPostDateStruct", "lastUpdateSubmitDate", "lastUpdatePostDateStruct"]
 
     model_config = ConfigDict(
@@ -86,10 +85,8 @@ class StatusModule(BaseModel):
         * `None` is only added to the output dict for nullable fields that
           were set at model initialization. Other fields with value `None`
           are ignored.
-        * Fields in `self.additional_properties` are added to the output dict.
         """
         excluded_fields: Set[str] = set([
-            "additional_properties",
         ])
 
         _dict = self.model_dump(
@@ -121,11 +118,6 @@ class StatusModule(BaseModel):
         # override the default output from pydantic by calling `to_dict()` of last_update_post_date_struct
         if self.last_update_post_date_struct:
             _dict['lastUpdatePostDateStruct'] = self.last_update_post_date_struct.to_dict()
-        # puts key-value pairs in additional_properties in the top level
-        if self.additional_properties is not None:
-            for _key, _value in self.additional_properties.items():
-                _dict[_key] = _value
-
         return _dict
 
     @classmethod
@@ -160,11 +152,6 @@ class StatusModule(BaseModel):
             "lastUpdateSubmitDate": obj.get("lastUpdateSubmitDate"),
             "lastUpdatePostDateStruct": DateStruct.from_dict(obj["lastUpdatePostDateStruct"]) if obj.get("lastUpdatePostDateStruct") is not None else None
         })
-        # store additional fields in additional_properties
-        for _key in obj.keys():
-            if _key not in cls.__properties:
-                _obj.additional_properties[_key] = obj.get(_key)
-
         return _obj
 
 

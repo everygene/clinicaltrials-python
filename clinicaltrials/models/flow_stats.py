@@ -31,7 +31,6 @@ class FlowStats(BaseModel):
     comment: Optional[StrictStr] = None
     num_subjects: Optional[StrictStr] = Field(default=None, alias="numSubjects")
     num_units: Optional[StrictStr] = Field(default=None, alias="numUnits")
-    additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["groupId", "comment", "numSubjects", "numUnits"]
 
     model_config = ConfigDict(
@@ -64,10 +63,8 @@ class FlowStats(BaseModel):
         * `None` is only added to the output dict for nullable fields that
           were set at model initialization. Other fields with value `None`
           are ignored.
-        * Fields in `self.additional_properties` are added to the output dict.
         """
         excluded_fields: Set[str] = set([
-            "additional_properties",
         ])
 
         _dict = self.model_dump(
@@ -75,11 +72,6 @@ class FlowStats(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # puts key-value pairs in additional_properties in the top level
-        if self.additional_properties is not None:
-            for _key, _value in self.additional_properties.items():
-                _dict[_key] = _value
-
         return _dict
 
     @classmethod
@@ -97,11 +89,6 @@ class FlowStats(BaseModel):
             "numSubjects": obj.get("numSubjects"),
             "numUnits": obj.get("numUnits")
         })
-        # store additional fields in additional_properties
-        for _key in obj.keys():
-            if _key not in cls.__properties:
-                _obj.additional_properties[_key] = obj.get(_key)
-
         return _obj
 
 

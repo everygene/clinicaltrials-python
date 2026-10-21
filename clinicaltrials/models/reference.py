@@ -33,7 +33,6 @@ class Reference(BaseModel):
     type: Optional[ReferenceType] = None
     citation: Optional[StrictStr] = None
     retractions: Optional[List[Retraction]] = None
-    additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["pmid", "type", "citation", "retractions"]
 
     model_config = ConfigDict(
@@ -66,10 +65,8 @@ class Reference(BaseModel):
         * `None` is only added to the output dict for nullable fields that
           were set at model initialization. Other fields with value `None`
           are ignored.
-        * Fields in `self.additional_properties` are added to the output dict.
         """
         excluded_fields: Set[str] = set([
-            "additional_properties",
         ])
 
         _dict = self.model_dump(
@@ -83,11 +80,6 @@ class Reference(BaseModel):
             for _item_retractions in self.retractions:
                 _items.append(_item_retractions.to_dict() if _item_retractions is not None else None)
             _dict['retractions'] = _items
-        # puts key-value pairs in additional_properties in the top level
-        if self.additional_properties is not None:
-            for _key, _value in self.additional_properties.items():
-                _dict[_key] = _value
-
         return _dict
 
     @classmethod
@@ -105,11 +97,6 @@ class Reference(BaseModel):
             "citation": obj.get("citation"),
             "retractions": [Retraction.from_dict(_item) for _item in obj["retractions"]] if obj.get("retractions") is not None else None
         })
-        # store additional fields in additional_properties
-        for _key in obj.keys():
-            if _key not in cls.__properties:
-                _obj.additional_properties[_key] = obj.get(_key)
-
         return _obj
 
 

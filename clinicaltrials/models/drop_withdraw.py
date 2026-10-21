@@ -31,7 +31,6 @@ class DropWithdraw(BaseModel):
     type: Optional[StrictStr] = None
     comment: Optional[StrictStr] = None
     reasons: Optional[List[FlowStats]] = None
-    additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["type", "comment", "reasons"]
 
     model_config = ConfigDict(
@@ -64,10 +63,8 @@ class DropWithdraw(BaseModel):
         * `None` is only added to the output dict for nullable fields that
           were set at model initialization. Other fields with value `None`
           are ignored.
-        * Fields in `self.additional_properties` are added to the output dict.
         """
         excluded_fields: Set[str] = set([
-            "additional_properties",
         ])
 
         _dict = self.model_dump(
@@ -81,11 +78,6 @@ class DropWithdraw(BaseModel):
             for _item_reasons in self.reasons:
                 _items.append(_item_reasons.to_dict() if _item_reasons is not None else None)
             _dict['reasons'] = _items
-        # puts key-value pairs in additional_properties in the top level
-        if self.additional_properties is not None:
-            for _key, _value in self.additional_properties.items():
-                _dict[_key] = _value
-
         return _dict
 
     @classmethod
@@ -102,11 +94,6 @@ class DropWithdraw(BaseModel):
             "comment": obj.get("comment"),
             "reasons": [FlowStats.from_dict(_item) for _item in obj["reasons"]] if obj.get("reasons") is not None else None
         })
-        # store additional fields in additional_properties
-        for _key in obj.keys():
-            if _key not in cls.__properties:
-                _obj.additional_properties[_key] = obj.get(_key)
-
         return _obj
 
 

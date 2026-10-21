@@ -34,7 +34,6 @@ class BrowseModule(BaseModel):
     ancestors: Optional[List[Mesh]] = None
     browse_leaves: Optional[List[BrowseLeaf]] = Field(default=None, alias="browseLeaves")
     browse_branches: Optional[List[BrowseBranch]] = Field(default=None, alias="browseBranches")
-    additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["meshes", "ancestors", "browseLeaves", "browseBranches"]
 
     model_config = ConfigDict(
@@ -67,10 +66,8 @@ class BrowseModule(BaseModel):
         * `None` is only added to the output dict for nullable fields that
           were set at model initialization. Other fields with value `None`
           are ignored.
-        * Fields in `self.additional_properties` are added to the output dict.
         """
         excluded_fields: Set[str] = set([
-            "additional_properties",
         ])
 
         _dict = self.model_dump(
@@ -102,11 +99,6 @@ class BrowseModule(BaseModel):
             for _item_browse_branches in self.browse_branches:
                 _items.append(_item_browse_branches.to_dict() if _item_browse_branches is not None else None)
             _dict['browseBranches'] = _items
-        # puts key-value pairs in additional_properties in the top level
-        if self.additional_properties is not None:
-            for _key, _value in self.additional_properties.items():
-                _dict[_key] = _value
-
         return _dict
 
     @classmethod
@@ -124,11 +116,6 @@ class BrowseModule(BaseModel):
             "browseLeaves": [BrowseLeaf.from_dict(_item) for _item in obj["browseLeaves"]] if obj.get("browseLeaves") is not None else None,
             "browseBranches": [BrowseBranch.from_dict(_item) for _item in obj["browseBranches"]] if obj.get("browseBranches") is not None else None
         })
-        # store additional fields in additional_properties
-        for _key in obj.keys():
-            if _key not in cls.__properties:
-                _obj.additional_properties[_key] = obj.get(_key)
-
         return _obj
 
 

@@ -33,7 +33,6 @@ class ReferencesModule(BaseModel):
     references: Optional[List[Reference]] = None
     see_also_links: Optional[List[SeeAlsoLink]] = Field(default=None, alias="seeAlsoLinks")
     avail_ipds: Optional[List[AvailIpd]] = Field(default=None, alias="availIpds")
-    additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["references", "seeAlsoLinks", "availIpds"]
 
     model_config = ConfigDict(
@@ -66,10 +65,8 @@ class ReferencesModule(BaseModel):
         * `None` is only added to the output dict for nullable fields that
           were set at model initialization. Other fields with value `None`
           are ignored.
-        * Fields in `self.additional_properties` are added to the output dict.
         """
         excluded_fields: Set[str] = set([
-            "additional_properties",
         ])
 
         _dict = self.model_dump(
@@ -95,11 +92,6 @@ class ReferencesModule(BaseModel):
             for _item_avail_ipds in self.avail_ipds:
                 _items.append(_item_avail_ipds.to_dict() if _item_avail_ipds is not None else None)
             _dict['availIpds'] = _items
-        # puts key-value pairs in additional_properties in the top level
-        if self.additional_properties is not None:
-            for _key, _value in self.additional_properties.items():
-                _dict[_key] = _value
-
         return _dict
 
     @classmethod
@@ -116,11 +108,6 @@ class ReferencesModule(BaseModel):
             "seeAlsoLinks": [SeeAlsoLink.from_dict(_item) for _item in obj["seeAlsoLinks"]] if obj.get("seeAlsoLinks") is not None else None,
             "availIpds": [AvailIpd.from_dict(_item) for _item in obj["availIpds"]] if obj.get("availIpds") is not None else None
         })
-        # store additional fields in additional_properties
-        for _key in obj.keys():
-            if _key not in cls.__properties:
-                _obj.additional_properties[_key] = obj.get(_key)
-
         return _obj
 
 

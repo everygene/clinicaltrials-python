@@ -30,7 +30,6 @@ class LargeDocumentModule(BaseModel):
     """ # noqa: E501
     no_sap: Optional[StrictBool] = Field(default=None, alias="noSap")
     large_docs: Optional[List[LargeDoc]] = Field(default=None, alias="largeDocs")
-    additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["noSap", "largeDocs"]
 
     model_config = ConfigDict(
@@ -63,10 +62,8 @@ class LargeDocumentModule(BaseModel):
         * `None` is only added to the output dict for nullable fields that
           were set at model initialization. Other fields with value `None`
           are ignored.
-        * Fields in `self.additional_properties` are added to the output dict.
         """
         excluded_fields: Set[str] = set([
-            "additional_properties",
         ])
 
         _dict = self.model_dump(
@@ -80,11 +77,6 @@ class LargeDocumentModule(BaseModel):
             for _item_large_docs in self.large_docs:
                 _items.append(_item_large_docs.to_dict() if _item_large_docs is not None else None)
             _dict['largeDocs'] = _items
-        # puts key-value pairs in additional_properties in the top level
-        if self.additional_properties is not None:
-            for _key, _value in self.additional_properties.items():
-                _dict[_key] = _value
-
         return _dict
 
     @classmethod
@@ -100,11 +92,6 @@ class LargeDocumentModule(BaseModel):
             "noSap": obj.get("noSap"),
             "largeDocs": [LargeDoc.from_dict(_item) for _item in obj["largeDocs"]] if obj.get("largeDocs") is not None else None
         })
-        # store additional fields in additional_properties
-        for _key in obj.keys():
-            if _key not in cls.__properties:
-                _obj.additional_properties[_key] = obj.get(_key)
-
         return _obj
 
 
