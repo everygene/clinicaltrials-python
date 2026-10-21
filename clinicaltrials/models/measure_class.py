@@ -23,6 +23,7 @@ from clinicaltrials.models.denom import Denom
 from clinicaltrials.models.measure_category import MeasureCategory
 from typing import Optional, Set
 from typing_extensions import Self
+from pydantic_core import to_jsonable_python
 
 class MeasureClass(BaseModel):
     """
@@ -34,7 +35,8 @@ class MeasureClass(BaseModel):
     __properties: ClassVar[List[str]] = ["title", "denoms", "categories"]
 
     model_config = ConfigDict(
-        populate_by_name=True,
+        validate_by_name=True,
+        validate_by_alias=True,
         validate_assignment=True,
         protected_namespaces=(),
     )
@@ -46,8 +48,7 @@ class MeasureClass(BaseModel):
 
     def to_json(self) -> str:
         """Returns the JSON representation of the model using alias"""
-        # TODO: pydantic v2: use .model_dump_json(by_alias=True, exclude_unset=True) instead
-        return json.dumps(self.to_dict())
+        return json.dumps(to_jsonable_python(self.to_dict()))
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
@@ -76,15 +77,13 @@ class MeasureClass(BaseModel):
         _items = []
         if self.denoms:
             for _item_denoms in self.denoms:
-                if _item_denoms:
-                    _items.append(_item_denoms.to_dict())
+                _items.append(_item_denoms.to_dict() if _item_denoms is not None else None)
             _dict['denoms'] = _items
         # override the default output from pydantic by calling `to_dict()` of each item in categories (list)
         _items = []
         if self.categories:
             for _item_categories in self.categories:
-                if _item_categories:
-                    _items.append(_item_categories.to_dict())
+                _items.append(_item_categories.to_dict() if _item_categories is not None else None)
             _dict['categories'] = _items
         return _dict
 

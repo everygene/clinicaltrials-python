@@ -24,6 +24,7 @@ from clinicaltrials.models.longest_string import LongestString
 from clinicaltrials.models.value_count import ValueCount
 from typing import Optional, Set
 from typing_extensions import Self
+from pydantic_core import to_jsonable_python
 
 class StringStats(BaseModel):
     """
@@ -39,7 +40,8 @@ class StringStats(BaseModel):
     __properties: ClassVar[List[str]] = ["field", "longest", "missingStudiesCount", "piece", "topValues", "type", "uniqueValuesCount"]
 
     model_config = ConfigDict(
-        populate_by_name=True,
+        validate_by_name=True,
+        validate_by_alias=True,
         validate_assignment=True,
         protected_namespaces=(),
     )
@@ -51,8 +53,7 @@ class StringStats(BaseModel):
 
     def to_json(self) -> str:
         """Returns the JSON representation of the model using alias"""
-        # TODO: pydantic v2: use .model_dump_json(by_alias=True, exclude_unset=True) instead
-        return json.dumps(self.to_dict())
+        return json.dumps(to_jsonable_python(self.to_dict()))
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
@@ -84,8 +85,7 @@ class StringStats(BaseModel):
         _items = []
         if self.top_values:
             for _item_top_values in self.top_values:
-                if _item_top_values:
-                    _items.append(_item_top_values.to_dict())
+                _items.append(_item_top_values.to_dict() if _item_top_values is not None else None)
             _dict['topValues'] = _items
         return _dict
 

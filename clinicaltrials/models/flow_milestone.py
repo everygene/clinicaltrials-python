@@ -22,6 +22,7 @@ from typing import Any, ClassVar, Dict, List, Optional
 from clinicaltrials.models.flow_stats import FlowStats
 from typing import Optional, Set
 from typing_extensions import Self
+from pydantic_core import to_jsonable_python
 
 class FlowMilestone(BaseModel):
     """
@@ -33,7 +34,8 @@ class FlowMilestone(BaseModel):
     __properties: ClassVar[List[str]] = ["type", "comment", "achievements"]
 
     model_config = ConfigDict(
-        populate_by_name=True,
+        validate_by_name=True,
+        validate_by_alias=True,
         validate_assignment=True,
         protected_namespaces=(),
     )
@@ -45,8 +47,7 @@ class FlowMilestone(BaseModel):
 
     def to_json(self) -> str:
         """Returns the JSON representation of the model using alias"""
-        # TODO: pydantic v2: use .model_dump_json(by_alias=True, exclude_unset=True) instead
-        return json.dumps(self.to_dict())
+        return json.dumps(to_jsonable_python(self.to_dict()))
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
@@ -75,8 +76,7 @@ class FlowMilestone(BaseModel):
         _items = []
         if self.achievements:
             for _item_achievements in self.achievements:
-                if _item_achievements:
-                    _items.append(_item_achievements.to_dict())
+                _items.append(_item_achievements.to_dict() if _item_achievements is not None else None)
             _dict['achievements'] = _items
         return _dict
 

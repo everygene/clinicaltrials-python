@@ -28,6 +28,7 @@ from clinicaltrials.models.outcome_measure_type import OutcomeMeasureType
 from clinicaltrials.models.reporting_status import ReportingStatus
 from typing import Optional, Set
 from typing_extensions import Self
+from pydantic_core import to_jsonable_python
 
 class OutcomeMeasure(BaseModel):
     """
@@ -53,7 +54,8 @@ class OutcomeMeasure(BaseModel):
     __properties: ClassVar[List[str]] = ["type", "title", "description", "populationDescription", "reportingStatus", "anticipatedPostingDate", "paramType", "dispersionType", "unitOfMeasure", "calculatePct", "timeFrame", "typeUnitsAnalyzed", "denomUnitsSelected", "groups", "denoms", "classes", "analyses"]
 
     model_config = ConfigDict(
-        populate_by_name=True,
+        validate_by_name=True,
+        validate_by_alias=True,
         validate_assignment=True,
         protected_namespaces=(),
     )
@@ -65,8 +67,7 @@ class OutcomeMeasure(BaseModel):
 
     def to_json(self) -> str:
         """Returns the JSON representation of the model using alias"""
-        # TODO: pydantic v2: use .model_dump_json(by_alias=True, exclude_unset=True) instead
-        return json.dumps(self.to_dict())
+        return json.dumps(to_jsonable_python(self.to_dict()))
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
@@ -95,29 +96,25 @@ class OutcomeMeasure(BaseModel):
         _items = []
         if self.groups:
             for _item_groups in self.groups:
-                if _item_groups:
-                    _items.append(_item_groups.to_dict())
+                _items.append(_item_groups.to_dict() if _item_groups is not None else None)
             _dict['groups'] = _items
         # override the default output from pydantic by calling `to_dict()` of each item in denoms (list)
         _items = []
         if self.denoms:
             for _item_denoms in self.denoms:
-                if _item_denoms:
-                    _items.append(_item_denoms.to_dict())
+                _items.append(_item_denoms.to_dict() if _item_denoms is not None else None)
             _dict['denoms'] = _items
         # override the default output from pydantic by calling `to_dict()` of each item in classes (list)
         _items = []
         if self.classes:
             for _item_classes in self.classes:
-                if _item_classes:
-                    _items.append(_item_classes.to_dict())
+                _items.append(_item_classes.to_dict() if _item_classes is not None else None)
             _dict['classes'] = _items
         # override the default output from pydantic by calling `to_dict()` of each item in analyses (list)
         _items = []
         if self.analyses:
             for _item_analyses in self.analyses:
-                if _item_analyses:
-                    _items.append(_item_analyses.to_dict())
+                _items.append(_item_analyses.to_dict() if _item_analyses is not None else None)
             _dict['analyses'] = _items
         return _dict
 

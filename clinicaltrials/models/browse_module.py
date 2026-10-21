@@ -24,6 +24,7 @@ from clinicaltrials.models.browse_leaf import BrowseLeaf
 from clinicaltrials.models.mesh import Mesh
 from typing import Optional, Set
 from typing_extensions import Self
+from pydantic_core import to_jsonable_python
 
 class BrowseModule(BaseModel):
     """
@@ -36,7 +37,8 @@ class BrowseModule(BaseModel):
     __properties: ClassVar[List[str]] = ["meshes", "ancestors", "browseLeaves", "browseBranches"]
 
     model_config = ConfigDict(
-        populate_by_name=True,
+        validate_by_name=True,
+        validate_by_alias=True,
         validate_assignment=True,
         protected_namespaces=(),
     )
@@ -48,8 +50,7 @@ class BrowseModule(BaseModel):
 
     def to_json(self) -> str:
         """Returns the JSON representation of the model using alias"""
-        # TODO: pydantic v2: use .model_dump_json(by_alias=True, exclude_unset=True) instead
-        return json.dumps(self.to_dict())
+        return json.dumps(to_jsonable_python(self.to_dict()))
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
@@ -78,29 +79,25 @@ class BrowseModule(BaseModel):
         _items = []
         if self.meshes:
             for _item_meshes in self.meshes:
-                if _item_meshes:
-                    _items.append(_item_meshes.to_dict())
+                _items.append(_item_meshes.to_dict() if _item_meshes is not None else None)
             _dict['meshes'] = _items
         # override the default output from pydantic by calling `to_dict()` of each item in ancestors (list)
         _items = []
         if self.ancestors:
             for _item_ancestors in self.ancestors:
-                if _item_ancestors:
-                    _items.append(_item_ancestors.to_dict())
+                _items.append(_item_ancestors.to_dict() if _item_ancestors is not None else None)
             _dict['ancestors'] = _items
         # override the default output from pydantic by calling `to_dict()` of each item in browse_leaves (list)
         _items = []
         if self.browse_leaves:
             for _item_browse_leaves in self.browse_leaves:
-                if _item_browse_leaves:
-                    _items.append(_item_browse_leaves.to_dict())
+                _items.append(_item_browse_leaves.to_dict() if _item_browse_leaves is not None else None)
             _dict['browseLeaves'] = _items
         # override the default output from pydantic by calling `to_dict()` of each item in browse_branches (list)
         _items = []
         if self.browse_branches:
             for _item_browse_branches in self.browse_branches:
-                if _item_browse_branches:
-                    _items.append(_item_browse_branches.to_dict())
+                _items.append(_item_browse_branches.to_dict() if _item_browse_branches is not None else None)
             _dict['browseBranches'] = _items
         return _dict
 

@@ -28,6 +28,7 @@ from clinicaltrials.models.phase import Phase
 from clinicaltrials.models.study_type import StudyType
 from typing import Optional, Set
 from typing_extensions import Self
+from pydantic_core import to_jsonable_python
 
 class DesignModule(BaseModel):
     """
@@ -44,18 +45,19 @@ class DesignModule(BaseModel):
     enrollment_info: Optional[EnrollmentInfo] = Field(default=None, alias="enrollmentInfo")
     __properties: ClassVar[List[str]] = ["studyType", "nPtrsToThisExpAccNctId", "expandedAccessTypes", "patientRegistry", "targetDuration", "phases", "designInfo", "bioSpec", "enrollmentInfo"]
 
-    @field_validator('target_duration')
+    @field_validator('target_duration', mode="before")
     def target_duration_validate_regular_expression(cls, value):
         """Validates the regular expression"""
         if value is None:
             return value
 
-        if not re.match(r"^\d+ (Year|Years|Month|Months|Week|Weeks|Day|Days|Hour|Hours|Minute|Minutes)$", value):
+        if isinstance(value, str) and not re.match(r"^\d+ (Year|Years|Month|Months|Week|Weeks|Day|Days|Hour|Hours|Minute|Minutes)$", value):
             raise ValueError(r"must validate the regular expression /^\d+ (Year|Years|Month|Months|Week|Weeks|Day|Days|Hour|Hours|Minute|Minutes)$/")
         return value
 
     model_config = ConfigDict(
-        populate_by_name=True,
+        validate_by_name=True,
+        validate_by_alias=True,
         validate_assignment=True,
         protected_namespaces=(),
     )
@@ -67,8 +69,7 @@ class DesignModule(BaseModel):
 
     def to_json(self) -> str:
         """Returns the JSON representation of the model using alias"""
-        # TODO: pydantic v2: use .model_dump_json(by_alias=True, exclude_unset=True) instead
-        return json.dumps(self.to_dict())
+        return json.dumps(to_jsonable_python(self.to_dict()))
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:

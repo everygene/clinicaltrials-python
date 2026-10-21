@@ -22,6 +22,7 @@ from typing import Any, ClassVar, Dict, List, Optional
 from clinicaltrials.models.violation_event import ViolationEvent
 from typing import Optional, Set
 from typing_extensions import Self
+from pydantic_core import to_jsonable_python
 
 class ViolationAnnotation(BaseModel):
     """
@@ -31,7 +32,8 @@ class ViolationAnnotation(BaseModel):
     __properties: ClassVar[List[str]] = ["violationEvents"]
 
     model_config = ConfigDict(
-        populate_by_name=True,
+        validate_by_name=True,
+        validate_by_alias=True,
         validate_assignment=True,
         protected_namespaces=(),
     )
@@ -43,8 +45,7 @@ class ViolationAnnotation(BaseModel):
 
     def to_json(self) -> str:
         """Returns the JSON representation of the model using alias"""
-        # TODO: pydantic v2: use .model_dump_json(by_alias=True, exclude_unset=True) instead
-        return json.dumps(self.to_dict())
+        return json.dumps(to_jsonable_python(self.to_dict()))
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
@@ -73,8 +74,7 @@ class ViolationAnnotation(BaseModel):
         _items = []
         if self.violation_events:
             for _item_violation_events in self.violation_events:
-                if _item_violation_events:
-                    _items.append(_item_violation_events.to_dict())
+                _items.append(_item_violation_events.to_dict() if _item_violation_events is not None else None)
             _dict['violationEvents'] = _items
         return _dict
 

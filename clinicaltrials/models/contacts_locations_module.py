@@ -24,6 +24,7 @@ from clinicaltrials.models.location import Location
 from clinicaltrials.models.official import Official
 from typing import Optional, Set
 from typing_extensions import Self
+from pydantic_core import to_jsonable_python
 
 class ContactsLocationsModule(BaseModel):
     """
@@ -35,7 +36,8 @@ class ContactsLocationsModule(BaseModel):
     __properties: ClassVar[List[str]] = ["centralContacts", "overallOfficials", "locations"]
 
     model_config = ConfigDict(
-        populate_by_name=True,
+        validate_by_name=True,
+        validate_by_alias=True,
         validate_assignment=True,
         protected_namespaces=(),
     )
@@ -47,8 +49,7 @@ class ContactsLocationsModule(BaseModel):
 
     def to_json(self) -> str:
         """Returns the JSON representation of the model using alias"""
-        # TODO: pydantic v2: use .model_dump_json(by_alias=True, exclude_unset=True) instead
-        return json.dumps(self.to_dict())
+        return json.dumps(to_jsonable_python(self.to_dict()))
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
@@ -77,22 +78,19 @@ class ContactsLocationsModule(BaseModel):
         _items = []
         if self.central_contacts:
             for _item_central_contacts in self.central_contacts:
-                if _item_central_contacts:
-                    _items.append(_item_central_contacts.to_dict())
+                _items.append(_item_central_contacts.to_dict() if _item_central_contacts is not None else None)
             _dict['centralContacts'] = _items
         # override the default output from pydantic by calling `to_dict()` of each item in overall_officials (list)
         _items = []
         if self.overall_officials:
             for _item_overall_officials in self.overall_officials:
-                if _item_overall_officials:
-                    _items.append(_item_overall_officials.to_dict())
+                _items.append(_item_overall_officials.to_dict() if _item_overall_officials is not None else None)
             _dict['overallOfficials'] = _items
         # override the default output from pydantic by calling `to_dict()` of each item in locations (list)
         _items = []
         if self.locations:
             for _item_locations in self.locations:
-                if _item_locations:
-                    _items.append(_item_locations.to_dict())
+                _items.append(_item_locations.to_dict() if _item_locations is not None else None)
             _dict['locations'] = _items
         return _dict
 
