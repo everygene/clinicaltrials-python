@@ -23,6 +23,7 @@ from clinicaltrials.models.browse_module import BrowseModule
 from clinicaltrials.models.misc_info_module import MiscInfoModule
 from typing import Optional, Set
 from typing_extensions import Self
+from pydantic_core import to_jsonable_python
 
 class DerivedSection(BaseModel):
     """
@@ -31,10 +32,12 @@ class DerivedSection(BaseModel):
     misc_info_module: Optional[MiscInfoModule] = Field(default=None, alias="miscInfoModule")
     condition_browse_module: Optional[BrowseModule] = Field(default=None, alias="conditionBrowseModule")
     intervention_browse_module: Optional[BrowseModule] = Field(default=None, alias="interventionBrowseModule")
+    additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["miscInfoModule", "conditionBrowseModule", "interventionBrowseModule"]
 
     model_config = ConfigDict(
-        populate_by_name=True,
+        validate_by_name=True,
+        validate_by_alias=True,
         validate_assignment=True,
         protected_namespaces=(),
     )
@@ -46,8 +49,7 @@ class DerivedSection(BaseModel):
 
     def to_json(self) -> str:
         """Returns the JSON representation of the model using alias"""
-        # TODO: pydantic v2: use .model_dump_json(by_alias=True, exclude_unset=True) instead
-        return json.dumps(self.to_dict())
+        return json.dumps(to_jsonable_python(self.to_dict()))
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
@@ -63,8 +65,10 @@ class DerivedSection(BaseModel):
         * `None` is only added to the output dict for nullable fields that
           were set at model initialization. Other fields with value `None`
           are ignored.
+        * Fields in `self.additional_properties` are added to the output dict.
         """
         excluded_fields: Set[str] = set([
+            "additional_properties",
         ])
 
         _dict = self.model_dump(
@@ -81,6 +85,11 @@ class DerivedSection(BaseModel):
         # override the default output from pydantic by calling `to_dict()` of intervention_browse_module
         if self.intervention_browse_module:
             _dict['interventionBrowseModule'] = self.intervention_browse_module.to_dict()
+        # puts key-value pairs in additional_properties in the top level
+        if self.additional_properties is not None:
+            for _key, _value in self.additional_properties.items():
+                _dict[_key] = _value
+
         return _dict
 
     @classmethod
@@ -97,6 +106,11 @@ class DerivedSection(BaseModel):
             "conditionBrowseModule": BrowseModule.from_dict(obj["conditionBrowseModule"]) if obj.get("conditionBrowseModule") is not None else None,
             "interventionBrowseModule": BrowseModule.from_dict(obj["interventionBrowseModule"]) if obj.get("interventionBrowseModule") is not None else None
         })
+        # store additional fields in additional_properties
+        for _key in obj.keys():
+            if _key not in cls.__properties:
+                _obj.additional_properties[_key] = obj.get(_key)
+
         return _obj
 
 

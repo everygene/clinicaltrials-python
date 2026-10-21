@@ -22,6 +22,7 @@ from typing import Any, ClassVar, Dict, List, Optional
 from clinicaltrials.models.flow_stats import FlowStats
 from typing import Optional, Set
 from typing_extensions import Self
+from pydantic_core import to_jsonable_python
 
 class FlowMilestone(BaseModel):
     """
@@ -30,10 +31,12 @@ class FlowMilestone(BaseModel):
     type: Optional[StrictStr] = None
     comment: Optional[StrictStr] = None
     achievements: Optional[List[FlowStats]] = None
+    additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["type", "comment", "achievements"]
 
     model_config = ConfigDict(
-        populate_by_name=True,
+        validate_by_name=True,
+        validate_by_alias=True,
         validate_assignment=True,
         protected_namespaces=(),
     )
@@ -45,8 +48,7 @@ class FlowMilestone(BaseModel):
 
     def to_json(self) -> str:
         """Returns the JSON representation of the model using alias"""
-        # TODO: pydantic v2: use .model_dump_json(by_alias=True, exclude_unset=True) instead
-        return json.dumps(self.to_dict())
+        return json.dumps(to_jsonable_python(self.to_dict()))
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
@@ -62,8 +64,10 @@ class FlowMilestone(BaseModel):
         * `None` is only added to the output dict for nullable fields that
           were set at model initialization. Other fields with value `None`
           are ignored.
+        * Fields in `self.additional_properties` are added to the output dict.
         """
         excluded_fields: Set[str] = set([
+            "additional_properties",
         ])
 
         _dict = self.model_dump(
@@ -75,9 +79,13 @@ class FlowMilestone(BaseModel):
         _items = []
         if self.achievements:
             for _item_achievements in self.achievements:
-                if _item_achievements:
-                    _items.append(_item_achievements.to_dict())
+                _items.append(_item_achievements.to_dict() if _item_achievements is not None else None)
             _dict['achievements'] = _items
+        # puts key-value pairs in additional_properties in the top level
+        if self.additional_properties is not None:
+            for _key, _value in self.additional_properties.items():
+                _dict[_key] = _value
+
         return _dict
 
     @classmethod
@@ -94,6 +102,11 @@ class FlowMilestone(BaseModel):
             "comment": obj.get("comment"),
             "achievements": [FlowStats.from_dict(_item) for _item in obj["achievements"]] if obj.get("achievements") is not None else None
         })
+        # store additional fields in additional_properties
+        for _key in obj.keys():
+            if _key not in cls.__properties:
+                _obj.additional_properties[_key] = obj.get(_key)
+
         return _obj
 
 

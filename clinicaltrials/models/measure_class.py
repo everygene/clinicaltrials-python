@@ -23,6 +23,7 @@ from clinicaltrials.models.denom import Denom
 from clinicaltrials.models.measure_category import MeasureCategory
 from typing import Optional, Set
 from typing_extensions import Self
+from pydantic_core import to_jsonable_python
 
 class MeasureClass(BaseModel):
     """
@@ -31,10 +32,12 @@ class MeasureClass(BaseModel):
     title: Optional[StrictStr] = None
     denoms: Optional[List[Denom]] = None
     categories: Optional[List[MeasureCategory]] = None
+    additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["title", "denoms", "categories"]
 
     model_config = ConfigDict(
-        populate_by_name=True,
+        validate_by_name=True,
+        validate_by_alias=True,
         validate_assignment=True,
         protected_namespaces=(),
     )
@@ -46,8 +49,7 @@ class MeasureClass(BaseModel):
 
     def to_json(self) -> str:
         """Returns the JSON representation of the model using alias"""
-        # TODO: pydantic v2: use .model_dump_json(by_alias=True, exclude_unset=True) instead
-        return json.dumps(self.to_dict())
+        return json.dumps(to_jsonable_python(self.to_dict()))
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
@@ -63,8 +65,10 @@ class MeasureClass(BaseModel):
         * `None` is only added to the output dict for nullable fields that
           were set at model initialization. Other fields with value `None`
           are ignored.
+        * Fields in `self.additional_properties` are added to the output dict.
         """
         excluded_fields: Set[str] = set([
+            "additional_properties",
         ])
 
         _dict = self.model_dump(
@@ -76,16 +80,19 @@ class MeasureClass(BaseModel):
         _items = []
         if self.denoms:
             for _item_denoms in self.denoms:
-                if _item_denoms:
-                    _items.append(_item_denoms.to_dict())
+                _items.append(_item_denoms.to_dict() if _item_denoms is not None else None)
             _dict['denoms'] = _items
         # override the default output from pydantic by calling `to_dict()` of each item in categories (list)
         _items = []
         if self.categories:
             for _item_categories in self.categories:
-                if _item_categories:
-                    _items.append(_item_categories.to_dict())
+                _items.append(_item_categories.to_dict() if _item_categories is not None else None)
             _dict['categories'] = _items
+        # puts key-value pairs in additional_properties in the top level
+        if self.additional_properties is not None:
+            for _key, _value in self.additional_properties.items():
+                _dict[_key] = _value
+
         return _dict
 
     @classmethod
@@ -102,6 +109,11 @@ class MeasureClass(BaseModel):
             "denoms": [Denom.from_dict(_item) for _item in obj["denoms"]] if obj.get("denoms") is not None else None,
             "categories": [MeasureCategory.from_dict(_item) for _item in obj["categories"]] if obj.get("categories") is not None else None
         })
+        # store additional fields in additional_properties
+        for _key in obj.keys():
+            if _key not in cls.__properties:
+                _obj.additional_properties[_key] = obj.get(_key)
+
         return _obj
 
 

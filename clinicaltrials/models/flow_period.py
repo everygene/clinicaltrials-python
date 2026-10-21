@@ -23,6 +23,7 @@ from clinicaltrials.models.drop_withdraw import DropWithdraw
 from clinicaltrials.models.flow_milestone import FlowMilestone
 from typing import Optional, Set
 from typing_extensions import Self
+from pydantic_core import to_jsonable_python
 
 class FlowPeriod(BaseModel):
     """
@@ -31,10 +32,12 @@ class FlowPeriod(BaseModel):
     title: Optional[StrictStr] = None
     milestones: Optional[List[FlowMilestone]] = None
     drop_withdraws: Optional[List[DropWithdraw]] = Field(default=None, alias="dropWithdraws")
+    additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["title", "milestones", "dropWithdraws"]
 
     model_config = ConfigDict(
-        populate_by_name=True,
+        validate_by_name=True,
+        validate_by_alias=True,
         validate_assignment=True,
         protected_namespaces=(),
     )
@@ -46,8 +49,7 @@ class FlowPeriod(BaseModel):
 
     def to_json(self) -> str:
         """Returns the JSON representation of the model using alias"""
-        # TODO: pydantic v2: use .model_dump_json(by_alias=True, exclude_unset=True) instead
-        return json.dumps(self.to_dict())
+        return json.dumps(to_jsonable_python(self.to_dict()))
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
@@ -63,8 +65,10 @@ class FlowPeriod(BaseModel):
         * `None` is only added to the output dict for nullable fields that
           were set at model initialization. Other fields with value `None`
           are ignored.
+        * Fields in `self.additional_properties` are added to the output dict.
         """
         excluded_fields: Set[str] = set([
+            "additional_properties",
         ])
 
         _dict = self.model_dump(
@@ -76,16 +80,19 @@ class FlowPeriod(BaseModel):
         _items = []
         if self.milestones:
             for _item_milestones in self.milestones:
-                if _item_milestones:
-                    _items.append(_item_milestones.to_dict())
+                _items.append(_item_milestones.to_dict() if _item_milestones is not None else None)
             _dict['milestones'] = _items
         # override the default output from pydantic by calling `to_dict()` of each item in drop_withdraws (list)
         _items = []
         if self.drop_withdraws:
             for _item_drop_withdraws in self.drop_withdraws:
-                if _item_drop_withdraws:
-                    _items.append(_item_drop_withdraws.to_dict())
+                _items.append(_item_drop_withdraws.to_dict() if _item_drop_withdraws is not None else None)
             _dict['dropWithdraws'] = _items
+        # puts key-value pairs in additional_properties in the top level
+        if self.additional_properties is not None:
+            for _key, _value in self.additional_properties.items():
+                _dict[_key] = _value
+
         return _dict
 
     @classmethod
@@ -102,6 +109,11 @@ class FlowPeriod(BaseModel):
             "milestones": [FlowMilestone.from_dict(_item) for _item in obj["milestones"]] if obj.get("milestones") is not None else None,
             "dropWithdraws": [DropWithdraw.from_dict(_item) for _item in obj["dropWithdraws"]] if obj.get("dropWithdraws") is not None else None
         })
+        # store additional fields in additional_properties
+        for _key in obj.keys():
+            if _key not in cls.__properties:
+                _obj.additional_properties[_key] = obj.get(_key)
+
         return _obj
 
 

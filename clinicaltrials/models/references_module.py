@@ -24,6 +24,7 @@ from clinicaltrials.models.reference import Reference
 from clinicaltrials.models.see_also_link import SeeAlsoLink
 from typing import Optional, Set
 from typing_extensions import Self
+from pydantic_core import to_jsonable_python
 
 class ReferencesModule(BaseModel):
     """
@@ -32,10 +33,12 @@ class ReferencesModule(BaseModel):
     references: Optional[List[Reference]] = None
     see_also_links: Optional[List[SeeAlsoLink]] = Field(default=None, alias="seeAlsoLinks")
     avail_ipds: Optional[List[AvailIpd]] = Field(default=None, alias="availIpds")
+    additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["references", "seeAlsoLinks", "availIpds"]
 
     model_config = ConfigDict(
-        populate_by_name=True,
+        validate_by_name=True,
+        validate_by_alias=True,
         validate_assignment=True,
         protected_namespaces=(),
     )
@@ -47,8 +50,7 @@ class ReferencesModule(BaseModel):
 
     def to_json(self) -> str:
         """Returns the JSON representation of the model using alias"""
-        # TODO: pydantic v2: use .model_dump_json(by_alias=True, exclude_unset=True) instead
-        return json.dumps(self.to_dict())
+        return json.dumps(to_jsonable_python(self.to_dict()))
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
@@ -64,8 +66,10 @@ class ReferencesModule(BaseModel):
         * `None` is only added to the output dict for nullable fields that
           were set at model initialization. Other fields with value `None`
           are ignored.
+        * Fields in `self.additional_properties` are added to the output dict.
         """
         excluded_fields: Set[str] = set([
+            "additional_properties",
         ])
 
         _dict = self.model_dump(
@@ -77,23 +81,25 @@ class ReferencesModule(BaseModel):
         _items = []
         if self.references:
             for _item_references in self.references:
-                if _item_references:
-                    _items.append(_item_references.to_dict())
+                _items.append(_item_references.to_dict() if _item_references is not None else None)
             _dict['references'] = _items
         # override the default output from pydantic by calling `to_dict()` of each item in see_also_links (list)
         _items = []
         if self.see_also_links:
             for _item_see_also_links in self.see_also_links:
-                if _item_see_also_links:
-                    _items.append(_item_see_also_links.to_dict())
+                _items.append(_item_see_also_links.to_dict() if _item_see_also_links is not None else None)
             _dict['seeAlsoLinks'] = _items
         # override the default output from pydantic by calling `to_dict()` of each item in avail_ipds (list)
         _items = []
         if self.avail_ipds:
             for _item_avail_ipds in self.avail_ipds:
-                if _item_avail_ipds:
-                    _items.append(_item_avail_ipds.to_dict())
+                _items.append(_item_avail_ipds.to_dict() if _item_avail_ipds is not None else None)
             _dict['availIpds'] = _items
+        # puts key-value pairs in additional_properties in the top level
+        if self.additional_properties is not None:
+            for _key, _value in self.additional_properties.items():
+                _dict[_key] = _value
+
         return _dict
 
     @classmethod
@@ -110,6 +116,11 @@ class ReferencesModule(BaseModel):
             "seeAlsoLinks": [SeeAlsoLink.from_dict(_item) for _item in obj["seeAlsoLinks"]] if obj.get("seeAlsoLinks") is not None else None,
             "availIpds": [AvailIpd.from_dict(_item) for _item in obj["availIpds"]] if obj.get("availIpds") is not None else None
         })
+        # store additional fields in additional_properties
+        for _key in obj.keys():
+            if _key not in cls.__properties:
+                _obj.additional_properties[_key] = obj.get(_key)
+
         return _obj
 
 

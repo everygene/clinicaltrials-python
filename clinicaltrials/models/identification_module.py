@@ -24,6 +24,7 @@ from clinicaltrials.models.organization import Organization
 from clinicaltrials.models.secondary_id_info import SecondaryIdInfo
 from typing import Optional, Set
 from typing_extensions import Self
+from pydantic_core import to_jsonable_python
 
 class IdentificationModule(BaseModel):
     """
@@ -37,10 +38,12 @@ class IdentificationModule(BaseModel):
     official_title: Optional[StrictStr] = Field(default=None, alias="officialTitle")
     acronym: Optional[StrictStr] = None
     organization: Optional[Organization] = None
+    additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["nctId", "nctIdAliases", "orgStudyIdInfo", "secondaryIdInfos", "briefTitle", "officialTitle", "acronym", "organization"]
 
     model_config = ConfigDict(
-        populate_by_name=True,
+        validate_by_name=True,
+        validate_by_alias=True,
         validate_assignment=True,
         protected_namespaces=(),
     )
@@ -52,8 +55,7 @@ class IdentificationModule(BaseModel):
 
     def to_json(self) -> str:
         """Returns the JSON representation of the model using alias"""
-        # TODO: pydantic v2: use .model_dump_json(by_alias=True, exclude_unset=True) instead
-        return json.dumps(self.to_dict())
+        return json.dumps(to_jsonable_python(self.to_dict()))
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
@@ -69,8 +71,10 @@ class IdentificationModule(BaseModel):
         * `None` is only added to the output dict for nullable fields that
           were set at model initialization. Other fields with value `None`
           are ignored.
+        * Fields in `self.additional_properties` are added to the output dict.
         """
         excluded_fields: Set[str] = set([
+            "additional_properties",
         ])
 
         _dict = self.model_dump(
@@ -85,12 +89,16 @@ class IdentificationModule(BaseModel):
         _items = []
         if self.secondary_id_infos:
             for _item_secondary_id_infos in self.secondary_id_infos:
-                if _item_secondary_id_infos:
-                    _items.append(_item_secondary_id_infos.to_dict())
+                _items.append(_item_secondary_id_infos.to_dict() if _item_secondary_id_infos is not None else None)
             _dict['secondaryIdInfos'] = _items
         # override the default output from pydantic by calling `to_dict()` of organization
         if self.organization:
             _dict['organization'] = self.organization.to_dict()
+        # puts key-value pairs in additional_properties in the top level
+        if self.additional_properties is not None:
+            for _key, _value in self.additional_properties.items():
+                _dict[_key] = _value
+
         return _dict
 
     @classmethod
@@ -112,6 +120,11 @@ class IdentificationModule(BaseModel):
             "acronym": obj.get("acronym"),
             "organization": Organization.from_dict(obj["organization"]) if obj.get("organization") is not None else None
         })
+        # store additional fields in additional_properties
+        for _key in obj.keys():
+            if _key not in cls.__properties:
+                _obj.additional_properties[_key] = obj.get(_key)
+
         return _obj
 
 

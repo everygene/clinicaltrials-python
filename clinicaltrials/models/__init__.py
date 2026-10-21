@@ -12,7 +12,6 @@
     Do not edit the class manually.
 """  # noqa: E501
 
-
 # import models into model package
 from clinicaltrials.models.adverse_event import AdverseEvent
 from clinicaltrials.models.adverse_events_module import AdverseEventsModule
@@ -162,3 +161,4 @@ from clinicaltrials.models.violation_event import ViolationEvent
 from clinicaltrials.models.violation_event_type import ViolationEventType
 from clinicaltrials.models.web_link import WebLink
 from clinicaltrials.models.who_masked import WhoMasked
+

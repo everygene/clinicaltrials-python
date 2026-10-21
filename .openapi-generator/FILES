@@ -315,6 +315,7 @@ docs/ViolationEventType.md
 docs/WebLink.md
 docs/WhoMasked.md
 git_push.sh
+pyproject.toml
 requirements.txt
 setup.cfg
 setup.py

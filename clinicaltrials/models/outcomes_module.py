@@ -22,6 +22,7 @@ from typing import Any, ClassVar, Dict, List, Optional
 from clinicaltrials.models.outcome import Outcome
 from typing import Optional, Set
 from typing_extensions import Self
+from pydantic_core import to_jsonable_python
 
 class OutcomesModule(BaseModel):
     """
@@ -30,10 +31,12 @@ class OutcomesModule(BaseModel):
     primary_outcomes: Optional[List[Outcome]] = Field(default=None, alias="primaryOutcomes")
     secondary_outcomes: Optional[List[Outcome]] = Field(default=None, alias="secondaryOutcomes")
     other_outcomes: Optional[List[Outcome]] = Field(default=None, alias="otherOutcomes")
+    additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["primaryOutcomes", "secondaryOutcomes", "otherOutcomes"]
 
     model_config = ConfigDict(
-        populate_by_name=True,
+        validate_by_name=True,
+        validate_by_alias=True,
         validate_assignment=True,
         protected_namespaces=(),
     )
@@ -45,8 +48,7 @@ class OutcomesModule(BaseModel):
 
     def to_json(self) -> str:
         """Returns the JSON representation of the model using alias"""
-        # TODO: pydantic v2: use .model_dump_json(by_alias=True, exclude_unset=True) instead
-        return json.dumps(self.to_dict())
+        return json.dumps(to_jsonable_python(self.to_dict()))
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
@@ -62,8 +64,10 @@ class OutcomesModule(BaseModel):
         * `None` is only added to the output dict for nullable fields that
           were set at model initialization. Other fields with value `None`
           are ignored.
+        * Fields in `self.additional_properties` are added to the output dict.
         """
         excluded_fields: Set[str] = set([
+            "additional_properties",
         ])
 
         _dict = self.model_dump(
@@ -75,23 +79,25 @@ class OutcomesModule(BaseModel):
         _items = []
         if self.primary_outcomes:
             for _item_primary_outcomes in self.primary_outcomes:
-                if _item_primary_outcomes:
-                    _items.append(_item_primary_outcomes.to_dict())
+                _items.append(_item_primary_outcomes.to_dict() if _item_primary_outcomes is not None else None)
             _dict['primaryOutcomes'] = _items
         # override the default output from pydantic by calling `to_dict()` of each item in secondary_outcomes (list)
         _items = []
         if self.secondary_outcomes:
             for _item_secondary_outcomes in self.secondary_outcomes:
-                if _item_secondary_outcomes:
-                    _items.append(_item_secondary_outcomes.to_dict())
+                _items.append(_item_secondary_outcomes.to_dict() if _item_secondary_outcomes is not None else None)
             _dict['secondaryOutcomes'] = _items
         # override the default output from pydantic by calling `to_dict()` of each item in other_outcomes (list)
         _items = []
         if self.other_outcomes:
             for _item_other_outcomes in self.other_outcomes:
-                if _item_other_outcomes:
-                    _items.append(_item_other_outcomes.to_dict())
+                _items.append(_item_other_outcomes.to_dict() if _item_other_outcomes is not None else None)
             _dict['otherOutcomes'] = _items
+        # puts key-value pairs in additional_properties in the top level
+        if self.additional_properties is not None:
+            for _key, _value in self.additional_properties.items():
+                _dict[_key] = _value
+
         return _dict
 
     @classmethod
@@ -108,6 +114,11 @@ class OutcomesModule(BaseModel):
             "secondaryOutcomes": [Outcome.from_dict(_item) for _item in obj["secondaryOutcomes"]] if obj.get("secondaryOutcomes") is not None else None,
             "otherOutcomes": [Outcome.from_dict(_item) for _item in obj["otherOutcomes"]] if obj.get("otherOutcomes") is not None else None
         })
+        # store additional fields in additional_properties
+        for _key in obj.keys():
+            if _key not in cls.__properties:
+                _obj.additional_properties[_key] = obj.get(_key)
+
         return _obj
 
 

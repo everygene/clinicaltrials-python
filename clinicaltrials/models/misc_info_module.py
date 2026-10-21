@@ -23,6 +23,7 @@ from typing import Any, ClassVar, Dict, List, Optional
 from clinicaltrials.models.submission_tracking import SubmissionTracking
 from typing import Optional, Set
 from typing_extensions import Self
+from pydantic_core import to_jsonable_python
 
 class MiscInfoModule(BaseModel):
     """
@@ -31,10 +32,12 @@ class MiscInfoModule(BaseModel):
     version_holder: Optional[date] = Field(default=None, alias="versionHolder")
     removed_countries: Optional[List[StrictStr]] = Field(default=None, alias="removedCountries")
     submission_tracking: Optional[SubmissionTracking] = Field(default=None, alias="submissionTracking")
+    additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["versionHolder", "removedCountries", "submissionTracking"]
 
     model_config = ConfigDict(
-        populate_by_name=True,
+        validate_by_name=True,
+        validate_by_alias=True,
         validate_assignment=True,
         protected_namespaces=(),
     )
@@ -46,8 +49,7 @@ class MiscInfoModule(BaseModel):
 
     def to_json(self) -> str:
         """Returns the JSON representation of the model using alias"""
-        # TODO: pydantic v2: use .model_dump_json(by_alias=True, exclude_unset=True) instead
-        return json.dumps(self.to_dict())
+        return json.dumps(to_jsonable_python(self.to_dict()))
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
@@ -63,8 +65,10 @@ class MiscInfoModule(BaseModel):
         * `None` is only added to the output dict for nullable fields that
           were set at model initialization. Other fields with value `None`
           are ignored.
+        * Fields in `self.additional_properties` are added to the output dict.
         """
         excluded_fields: Set[str] = set([
+            "additional_properties",
         ])
 
         _dict = self.model_dump(
@@ -75,6 +79,11 @@ class MiscInfoModule(BaseModel):
         # override the default output from pydantic by calling `to_dict()` of submission_tracking
         if self.submission_tracking:
             _dict['submissionTracking'] = self.submission_tracking.to_dict()
+        # puts key-value pairs in additional_properties in the top level
+        if self.additional_properties is not None:
+            for _key, _value in self.additional_properties.items():
+                _dict[_key] = _value
+
         return _dict
 
     @classmethod
@@ -91,6 +100,11 @@ class MiscInfoModule(BaseModel):
             "removedCountries": obj.get("removedCountries"),
             "submissionTracking": SubmissionTracking.from_dict(obj["submissionTracking"]) if obj.get("submissionTracking") is not None else None
         })
+        # store additional fields in additional_properties
+        for _key in obj.keys():
+            if _key not in cls.__properties:
+                _obj.additional_properties[_key] = obj.get(_key)
+
         return _obj
 
 

@@ -23,6 +23,7 @@ from clinicaltrials.models.arm_group import ArmGroup
 from clinicaltrials.models.intervention import Intervention
 from typing import Optional, Set
 from typing_extensions import Self
+from pydantic_core import to_jsonable_python
 
 class ArmsInterventionsModule(BaseModel):
     """
@@ -30,10 +31,12 @@ class ArmsInterventionsModule(BaseModel):
     """ # noqa: E501
     arm_groups: Optional[List[ArmGroup]] = Field(default=None, alias="armGroups")
     interventions: Optional[List[Intervention]] = None
+    additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["armGroups", "interventions"]
 
     model_config = ConfigDict(
-        populate_by_name=True,
+        validate_by_name=True,
+        validate_by_alias=True,
         validate_assignment=True,
         protected_namespaces=(),
     )
@@ -45,8 +48,7 @@ class ArmsInterventionsModule(BaseModel):
 
     def to_json(self) -> str:
         """Returns the JSON representation of the model using alias"""
-        # TODO: pydantic v2: use .model_dump_json(by_alias=True, exclude_unset=True) instead
-        return json.dumps(self.to_dict())
+        return json.dumps(to_jsonable_python(self.to_dict()))
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
@@ -62,8 +64,10 @@ class ArmsInterventionsModule(BaseModel):
         * `None` is only added to the output dict for nullable fields that
           were set at model initialization. Other fields with value `None`
           are ignored.
+        * Fields in `self.additional_properties` are added to the output dict.
         """
         excluded_fields: Set[str] = set([
+            "additional_properties",
         ])
 
         _dict = self.model_dump(
@@ -75,16 +79,19 @@ class ArmsInterventionsModule(BaseModel):
         _items = []
         if self.arm_groups:
             for _item_arm_groups in self.arm_groups:
-                if _item_arm_groups:
-                    _items.append(_item_arm_groups.to_dict())
+                _items.append(_item_arm_groups.to_dict() if _item_arm_groups is not None else None)
             _dict['armGroups'] = _items
         # override the default output from pydantic by calling `to_dict()` of each item in interventions (list)
         _items = []
         if self.interventions:
             for _item_interventions in self.interventions:
-                if _item_interventions:
-                    _items.append(_item_interventions.to_dict())
+                _items.append(_item_interventions.to_dict() if _item_interventions is not None else None)
             _dict['interventions'] = _items
+        # puts key-value pairs in additional_properties in the top level
+        if self.additional_properties is not None:
+            for _key, _value in self.additional_properties.items():
+                _dict[_key] = _value
+
         return _dict
 
     @classmethod
@@ -100,6 +107,11 @@ class ArmsInterventionsModule(BaseModel):
             "armGroups": [ArmGroup.from_dict(_item) for _item in obj["armGroups"]] if obj.get("armGroups") is not None else None,
             "interventions": [Intervention.from_dict(_item) for _item in obj["interventions"]] if obj.get("interventions") is not None else None
         })
+        # store additional fields in additional_properties
+        for _key in obj.keys():
+            if _key not in cls.__properties:
+                _obj.additional_properties[_key] = obj.get(_key)
+
         return _obj
 
 

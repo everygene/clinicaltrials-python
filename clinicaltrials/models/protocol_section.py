@@ -34,6 +34,7 @@ from clinicaltrials.models.sponsor_collaborators_module import SponsorCollaborat
 from clinicaltrials.models.status_module import StatusModule
 from typing import Optional, Set
 from typing_extensions import Self
+from pydantic_core import to_jsonable_python
 
 class ProtocolSection(BaseModel):
     """
@@ -52,10 +53,12 @@ class ProtocolSection(BaseModel):
     contacts_locations_module: Optional[ContactsLocationsModule] = Field(default=None, alias="contactsLocationsModule")
     references_module: Optional[ReferencesModule] = Field(default=None, alias="referencesModule")
     ipd_sharing_statement_module: Optional[IpdSharingStatementModule] = Field(default=None, alias="ipdSharingStatementModule")
+    additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["identificationModule", "statusModule", "sponsorCollaboratorsModule", "oversightModule", "descriptionModule", "conditionsModule", "designModule", "armsInterventionsModule", "outcomesModule", "eligibilityModule", "contactsLocationsModule", "referencesModule", "ipdSharingStatementModule"]
 
     model_config = ConfigDict(
-        populate_by_name=True,
+        validate_by_name=True,
+        validate_by_alias=True,
         validate_assignment=True,
         protected_namespaces=(),
     )
@@ -67,8 +70,7 @@ class ProtocolSection(BaseModel):
 
     def to_json(self) -> str:
         """Returns the JSON representation of the model using alias"""
-        # TODO: pydantic v2: use .model_dump_json(by_alias=True, exclude_unset=True) instead
-        return json.dumps(self.to_dict())
+        return json.dumps(to_jsonable_python(self.to_dict()))
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
@@ -84,8 +86,10 @@ class ProtocolSection(BaseModel):
         * `None` is only added to the output dict for nullable fields that
           were set at model initialization. Other fields with value `None`
           are ignored.
+        * Fields in `self.additional_properties` are added to the output dict.
         """
         excluded_fields: Set[str] = set([
+            "additional_properties",
         ])
 
         _dict = self.model_dump(
@@ -132,6 +136,11 @@ class ProtocolSection(BaseModel):
         # override the default output from pydantic by calling `to_dict()` of ipd_sharing_statement_module
         if self.ipd_sharing_statement_module:
             _dict['ipdSharingStatementModule'] = self.ipd_sharing_statement_module.to_dict()
+        # puts key-value pairs in additional_properties in the top level
+        if self.additional_properties is not None:
+            for _key, _value in self.additional_properties.items():
+                _dict[_key] = _value
+
         return _dict
 
     @classmethod
@@ -158,6 +167,11 @@ class ProtocolSection(BaseModel):
             "referencesModule": ReferencesModule.from_dict(obj["referencesModule"]) if obj.get("referencesModule") is not None else None,
             "ipdSharingStatementModule": IpdSharingStatementModule.from_dict(obj["ipdSharingStatementModule"]) if obj.get("ipdSharingStatementModule") is not None else None
         })
+        # store additional fields in additional_properties
+        for _key in obj.keys():
+            if _key not in cls.__properties:
+                _obj.additional_properties[_key] = obj.get(_key)
+
         return _obj
 
 
